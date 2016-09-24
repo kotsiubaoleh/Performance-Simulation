@@ -1,0 +1,23 @@
+{
+  "name": "performance-simulation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "./node_modules/.bin/webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kotsiubaoleh/Performance-Simulation.git"
+  },
+  "author": "Kotsiuba Oleh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kotsiubaoleh/Performance-Simulation/issues"
+  },
+  "homepage": "https://github.com/kotsiubaoleh/Performance-Simulation#readme",
+  "dependencies": {
+    "webpack": "^1.13.2"
+  }
+}

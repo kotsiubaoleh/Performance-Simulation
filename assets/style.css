@@ -1,0 +1,12 @@
+.charts {
+    width: 100%;
+    border: 1px black;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.chart {
+    height: 180px;
+    margin-bottom: 10px;
+    background-color: tomato;
+}
