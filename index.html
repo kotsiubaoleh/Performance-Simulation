@@ -7,9 +7,14 @@
 </head>
 <body>
 <div class="charts">
-    <div class="chart" id="cpu"></div>
-    <div class="chart" id="ram"></div>
-    <div class="chart" id="hd"></div>
+    <div class="chart-block">
+        <div class="chart" id="cpu-chart"></div>
+        <div class="arrow" id="cpu-arrow">
+            <svg width="100%" height="100%" viewBox="0 0 32 32" preserveAspectRatio="none" class="arrow-icon">
+                <path fill="#ddd" stroke="white" d="M16 1l-15 15h9v16h12v-16h9z"/>
+            </svg>
+        </div>
+    </div>
 </div>
 <script src="dist/bundle.js"></script>
 </body>

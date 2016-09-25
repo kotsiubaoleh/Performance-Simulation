@@ -47,7 +47,7 @@
 	var CircularArray = __webpack_require__(1);
 	var Generator = __webpack_require__(2);
 	
-	var chart = document.getElementById('cpu');
+	var chart = document.getElementById('cpu-chart');
 	var canvas = document.createElement('canvas');
 	
 	chart.appendChild(canvas);
@@ -58,32 +58,62 @@
 	var ctx =  canvas.getContext('2d');
 	
 	ctx.strokeStyle = 'black';
-	ctx.lineWidth = 2;
+	ctx.lineWidth = 1;
+	
+	var arrow = document.getElementsByClassName('arrow-icon')[0];
+	var arrowContainer = document.getElementsByClassName('arrow')[0];
 	
 	function drawChart(data) {
-	
 	    ctx.clearRect(0,0,canvas.width,canvas.height);
 	    ctx.beginPath();
-	    ctx.moveTo(canvas.width - data.getLength(), data.getAt(0));
+	    ctx.moveTo(canvas.width - data.getLength(), canvas.height - data.getAt(0));
 	    for (var i = 0; i < data.getLength(); i++) {
-	        ctx.lineTo(canvas.width - data.getLength() + i, data.getAt(i));
+	        ctx.lineTo(canvas.width - data.getLength() + i, canvas.height - data.getAt(i));
 	    }
 	    ctx.stroke();
 	}
 	
 	var points = new CircularArray(canvas.width);
-	var generator = new Generator(canvas.height);
+	var generator = Generator.createCombinedGenerator([
+	    {from: 50, to: 200, weight: 1},
+	    {from: 5, to: 30, weight: 0.2},
+	    {from: 3, to: 15, weight: 0.05}]
+	);
+	
+	
+	var lastResult = 0, next = 0;
+	
+	function rotateArrow() {
+	    var angle = 90;
+	    if (lastResult > next) angle = 180;
+	    else if (next > lastResult) angle = 0;
+	    arrow.style.transform = 'rotate(' +  angle + 'deg)';
+	
+	    var background;
+	    if (next > 0.7) background = 'red';
+	    else if (next < 0.4) background = 'green';
+	    else background = 'yellow';
+	    arrowContainer.style.backgroundColor = background;
+	}
+	
 	
 	setInterval(function() {
-	    points.push(generator.next());
-	    drawChart(points);
-	},20);
+	    next = generator.next();
+	    rotateArrow();
+	    points.push(next * canvas.height);
+	    lastResult = next;
+	},50);
 	
-	drawChart(points);
+	function onNextFrame() {
+	    drawChart(points);
+	    requestAnimationFrame(onNextFrame);
+	}
+	
+	onNextFrame();
 	
 	window.onresize = function () {
-	    //canvas.setAttribute('width', chart.getBoundingClientRect().width);
-	    //canvas.setAttribute('height', chart.getBoundingClientRect().height);
+	    canvas.setAttribute('width', chart.getBoundingClientRect().width);
+	    canvas.setAttribute('height', chart.getBoundingClientRect().height);
 	};
 
 /***/ },
@@ -120,22 +150,37 @@
 /* 2 */
 /***/ function(module, exports) {
 
-	function Generator(maxY) {
-	    var mainGenerator = new MainGenerator(100,maxY);
-	    this.next = function() {
-	        return mainGenerator.next();
-	    };
+	function createCombinedGenerator(genParams) {
+	    var generators = [];
+	    var weights = [];
+	    for (var i = 0; i < genParams.length; i++) {
+	        generators.push(new Generator(genParams[i].from, genParams[i].to));
+	        weights.push(genParams[i].weight);
+	    }
+	    return new CombinedGenerator(generators, weights);
 	}
 	
-	function MainGenerator(maxX, maxY) {
-	    var x, y, dy;
-	    var ly  = Math.random() * maxY;
+	function CombinedGenerator(generators, weights) {
+	    var overallWeight = weights.reduce(function (sum, weight){ return sum + weight; });
+	
+	    this.next = function() {
+	        var next = 0;
+	        for (var i = 0; i < generators.length; i++) {
+	            next += generators[i].next() * weights[i];
+	        }
+	        return next / overallWeight;
+	    }
+	}
+	
+	function Generator(minX, maxX) {
+	    var x, y, dy, step;
+	    var ly  = Math.random();
 	
 	    init();
 	
 	    function init() {
-	        x = 10 + Math.floor(Math.random() * (maxX - 10));
-	        y = Math.floor(Math.random() * maxY);
+	        x = minX + Math.floor(Math.random() * (maxX - minX));
+	        y = Math.random();
 	        dy = (y - ly) / x;
 	        step = 0;
 	    };
@@ -148,7 +193,7 @@
 	    };
 	}
 	
-	module.exports = Generator;
+	module.exports.createCombinedGenerator = createCombinedGenerator;
 
 
 /***/ }

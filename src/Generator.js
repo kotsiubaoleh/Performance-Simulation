@@ -1,19 +1,34 @@
-function Generator(maxY) {
-    var mainGenerator = new MainGenerator(100,maxY);
-    this.next = function() {
-        return mainGenerator.next();
-    };
+function createCombinedGenerator(genParams) {
+    var generators = [];
+    var weights = [];
+    for (var i = 0; i < genParams.length; i++) {
+        generators.push(new Generator(genParams[i].from, genParams[i].to));
+        weights.push(genParams[i].weight);
+    }
+    return new CombinedGenerator(generators, weights);
 }
 
-function MainGenerator(maxX, maxY) {
-    var x, y, dy;
-    var ly  = Math.random() * maxY;
+function CombinedGenerator(generators, weights) {
+    var overallWeight = weights.reduce(function (sum, weight){ return sum + weight; });
+
+    this.next = function() {
+        var next = 0;
+        for (var i = 0; i < generators.length; i++) {
+            next += generators[i].next() * weights[i];
+        }
+        return next / overallWeight;
+    }
+}
+
+function Generator(minX, maxX) {
+    var x, y, dy, step;
+    var ly  = Math.random();
 
     init();
 
     function init() {
-        x = 10 + Math.floor(Math.random() * (maxX - 10));
-        y = Math.floor(Math.random() * maxY);
+        x = minX + Math.floor(Math.random() * (maxX - minX));
+        y = Math.random();
         dy = (y - ly) / x;
         step = 0;
     };
@@ -26,4 +41,4 @@ function MainGenerator(maxX, maxY) {
     };
 }
 
-module.exports = Generator;
+module.exports.createCombinedGenerator = createCombinedGenerator;

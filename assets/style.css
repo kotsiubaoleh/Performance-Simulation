@@ -1,12 +1,31 @@
 .charts {
     width: 100%;
-    border: 1px black;
     padding: 10px;
     box-sizing: border-box;
 }
 
+.chart-block {
+    display: flex;
+}
+
 .chart {
-    height: 180px;
+    flex-shrink: 1;
+    flex: 1;
+    height: 200px;
     margin-bottom: 10px;
-    background-color: tomato;
+    border: 1px solid;
+}
+
+.arrow {
+    flex-shrink: 0;
+    background-color: aquamarine;
+    width: 160px;
+    height: 160px;
+    padding: 20px;
+    transition: all 1s;
+    border: 1px solid;
+}
+
+.arrow-icon {
+    transition: all 1s;
 }
