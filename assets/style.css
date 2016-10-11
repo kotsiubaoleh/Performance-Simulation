@@ -1,3 +1,7 @@
+body {
+    font-family: sans-serif;
+}
+
 .charts {
     width: 100%;
     padding: 10px;
@@ -9,11 +13,9 @@
 }
 
 .chart {
-    flex-shrink: 1;
     flex: 1;
     height: 200px;
     margin-bottom: 10px;
-    border: 1px solid;
 }
 
 .arrow {
@@ -23,9 +25,28 @@
     height: 160px;
     padding: 20px;
     transition: all 1s;
-    border: 1px solid;
+
+}
+
+.percent {
+    width: 200px;
+    height: 200px;
+    position: relative;
+}
+
+.percent .sign {
+    font-size: 200px;
+    opacity: 0.05;
+    position: absolute;
+    line-height: 200px;
+}
+
+.percent .value {
+    text-align: center;
+    font-size: 150px;
+    line-height: 200px;
 }
 
 .arrow-icon {
-    transition: all 1s;
+    transition: all 0.2s;
 }
