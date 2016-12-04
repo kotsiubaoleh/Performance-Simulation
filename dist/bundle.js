@@ -47,52 +47,59 @@
 	var CircularArray = __webpack_require__(1);
 	var Generator = __webpack_require__(2);
 	var Chart = __webpack_require__(3);
+	var GLView = __webpack_require__(4);
+	var Vector = __webpack_require__(5);
 	
-	var chartElement = document.getElementById('cpu-chart');
-	var chart = new Chart(chartElement);
+	window.Vector = Vector;
 	
-	var percentElem = document.getElementById('cpu-percent');
-	var percent = 0;
+	// var chartElement = document.getElementById('cpu-chart');
+	var glViewElement = document.getElementById('gl-view');
+	// var chart = new Chart(chartElement);
+	var glView = new GLView(glViewElement);
 	
-	var arrow = document.getElementsByClassName('arrow-icon')[0];
-	var arrowContainer = document.getElementsByClassName('arrow')[0];
-	
-	var generator = Generator.createCombinedGenerator(
-	    [{from: 50, to: 200, weight: 1},
-	    {from: 5, to: 30, weight: 0.2},
-	    {from: 3, to: 15, weight: 0.05}]
-	);
-	
-	var lastResult = 0, next = 0;
-	
-	function rotateArrow() {
-	    var ANGLE_OFFSET = 90;
-	    var angle = -Math.atan((next - lastResult) * 200) / Math.PI * 180;
-	    angle += ANGLE_OFFSET;
-	    arrow.style.transform = 'rotate(' +  angle + 'deg)';
-	
-	    var background;
-	    if (next > 0.7) background = '#f22';
-	    else if (next < 0.4) background = '#2f2';
-	    else background = '#ff2';
-	    arrowContainer.style.backgroundColor = background;
-	}
-	
-	setInterval(function() {
-	    next = generator.next();
-	    chart.addRecord(next);
-	    percent = next * 100;
-	    rotateArrow();
-	    lastResult = next;
-	},100);
-	
-	function drawPercent(){
-	    percentElem.innerHTML = Math.round(percent);
-	}
+	// var percentElem = document.getElementById('cpu-percent');
+	// var percent = 0;
+	//
+	// var arrow = document.getElementsByClassName('arrow-icon')[0];
+	// var arrowContainer = document.getElementsByClassName('arrow')[0];
+	//
+	// var generator = Generator.createCombinedGenerator(
+	//     [{from: 50, to: 200, weight: 1},
+	//     {from: 5, to: 30, weight: 0.2},
+	//     {from: 3, to: 15, weight: 0.05}]
+	// );
+	//
+	// var lastResult = 0, next = 0;
+	//
+	// function rotateArrow() {
+	//     var ANGLE_OFFSET = 90;
+	//     var angle = -Math.atan((next - lastResult) * 200) / Math.PI * 180;
+	//     angle += ANGLE_OFFSET;
+	//     arrow.style.transform = 'rotate(' +  angle + 'deg)';
+	//
+	//     var background;
+	//     if (next > 0.7) background = '#f22';
+	//     else if (next < 0.4) background = '#2f2';
+	//     else background = '#ff2';
+	//     arrowContainer.style.backgroundColor = background;
+	// }
+	//
+	// setInterval(function() {
+	//     next = generator.next();
+	//     // chart.addRecord(next);
+	//     percent = next * 100;
+	//     rotateArrow();
+	//     lastResult = next;
+	// },100);
+	//
+	// function drawPercent(){
+	//     percentElem.innerHTML = Math.round(percent);
+	// }
 	
 	function onNextFrame() {
-	    chart.draw();
-	    drawPercent();
+	    // chart.draw();
+	    glView.draw();
+	    // drawPercent();
 	    requestAnimationFrame(onNextFrame);
 	}
 	
@@ -304,6 +311,239 @@
 	};
 	
 	module.exports = Chart;
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+	function requestShaderSource(shaderPath, callback) {
+	    var isAsync = !!callback;
+	    var xhr = new XMLHttpRequest();
+	    xhr.open('GET', shaderPath, isAsync);
+	    xhr.send();
+	    if (isAsync) {
+	        xhr.onload(function () {
+	            callback(xhr.responseText);
+	        });
+	        xhr.onerror(function () {
+	            throw new Error("Cannot load shader " + shaderPath);
+	        });
+	    } else return xhr.responseText;
+	}
+	
+	function createShader(gl, type, source) {
+	    var shader = gl.createShader(type);
+	    gl.shaderSource(shader, source);
+	    gl.compileShader(shader);
+	    var success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+	    if(success) {
+	        return shader;
+	    }
+	
+	    console.info(gl.getShaderInfoLog(shader));
+	    this.gl.deleteShader(shader);
+	}
+	
+	function createProgram(gl, vertexShader, fragmentShader) {
+	    var program = gl.createProgram();
+	    gl.attachShader(program, vertexShader);
+	    gl.attachShader(program, fragmentShader);
+	    gl.linkProgram(program);
+	    var success = gl.getProgramParameter(program, gl.LINK_STATUS);
+	    if (success) {
+	        return program;
+	    }
+	
+	    console.info(this.gl.getProgramInfoLog(program));
+	    this.gl.deleteProgram(program);
+	}
+	
+	function GLView(containerElement) {
+	
+	    this._chart = document.createElement('canvas');
+	    this._chart.style.position = 'absolute';
+	    containerElement.appendChild(this._chart);
+	
+	    var gl = this._chart.getContext("webgl");
+	
+	    this.gl = gl;
+	
+	    //var vertexShaderSource = document.getElementById("shader.vert").innerText;
+	    //var fragmentShaderSource = document.getElementById("shader.vert").text;
+	
+	    var vertexShaderSource = requestShaderSource('shaders/shader.vert');
+	    var fragmentShaderSource = requestShaderSource('shaders/shader.frag');
+	
+	    var vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+	    var fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+	
+	    var program = createProgram(gl, vertexShader, fragmentShader);
+	
+	    gl.useProgram(program);
+	
+	    var mouseUniformLocation = gl.getUniformLocation(program, 'mouse');
+	
+	    this._chart.onmousemove = function (event) {
+	        var x = (event.clientX - this.offsetLeft) / rect.width;
+	        var y = (event.clientY - this.offsetTop) / rect.height;
+	        gl.uniform2f(mouseUniformLocation, x, y);
+	    };
+	
+	    var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+	    gl.enableVertexAttribArray(positionAttributeLocation);
+	    var positionBuffer = gl.createBuffer();
+	    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+	    var positions = [
+	        0, 0,
+	        1, 0,
+	        0, 1,
+	        0, 1,
+	        1, 0,
+	        1, 1
+	    ];
+	    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+	
+	    var size = 2;
+	    var type = gl.FLOAT;
+	    var normalize = false;
+	    var stride = 0;
+	    var offset = 0;
+	    this.gl.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset);
+	
+	    // canvas.width = 640;
+	    // canvas.height = 480;
+	    var rect = containerElement.getBoundingClientRect();
+	    this._chart.width = rect.width;
+	    this._chart.height = rect.height;
+	    this.gl.viewport(0,0, rect.width, rect.height);
+	}
+	
+	GLView.prototype.draw = function() {
+	    this.gl.clearColor(0,0,0,0);
+	    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+	
+	    var primitiveType = this.gl.TRIANGLES;
+	    var offset = 0;
+	    var count = 6;
+	    this.gl.drawArrays(primitiveType, offset, count);
+	};
+	
+	module.exports = GLView;
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+	function createFromArray(arr) {
+	  this.size = arr.length;
+	  this.data = [];
+	  for (var i = 0; i < arr.length; ++i) {
+	    this.data.push(arr[i]);
+	  }
+	}
+	
+	function createInitialized(size, initialValue) {
+	  this.size = size;
+	  this.data = [];
+	  for (var i = 0; i < this.size; ++i) {
+	    this.data.push(initialValue);
+	  }
+	}
+	
+	function createNotInitialized(size) {
+	  createInitialized.call(this, size, 0);
+	}
+	
+	function Vector() {
+	  if (arguments.length > 0) {
+	    if(arguments[0] instanceof Array){
+	      createFromArray.apply(this, arguments);
+	      return;
+	    }
+	    else if (typeof arguments[0] === 'number') {
+	        if (arguments.length > 1) {
+	          createInitialized.apply(this, arguments);
+	          return;
+	        } else {
+	          createNotInitialized.apply(this, arguments);
+	          return;
+	      }
+	    }
+	  }
+	  throw new Error('Incorrect arguments passed to the Vector constructor');
+	}
+	
+	Vector.prototype.toString = function() {
+	  var res = ['\n'];
+	  for (var i = 0; i < this.size; ++i) {
+	    res.push('[');
+	    res.push(this.data[i]);
+	    res.push(']\n');
+	  }
+	  return res.join('');
+	};
+	
+	Vector.prototype.add = function(vecB) {
+	  if (!(vecB instanceof Vector)) throw new Error('Argument is not instance of a Vector');
+	  if (this.size !== vecB.size) throw new Error('Vector sizes don\'t match');
+	  for (var i = 0; i < this.size; ++i) {
+	    this.data[i] += vecB.data[i];
+	  }
+	  return this;
+	};
+	
+	Vector.prototype.sub = function(vecB) {
+	  if (!(vecB instanceof Vector)) throw new Error('Argument is not instance of a Vector');
+	  if (this.size !== vecB.size) throw new Error('Vector sizes don\'t match');
+	  for (var i = 0; i < this.size; ++i) {
+	    this.data[i] -= vecB.data[i];
+	  }
+	  return this;
+	};
+	
+	Vector.prototype.mul = function (scalar) {
+	  for (var i = 0; i < this.size; ++i) {
+	    this.data[i] *= scalar;
+	  }
+	  return this;
+	};
+	
+	Vector.prototype.getSqrLength = function() {
+	  sqrSum = 0;
+	  for (var i = 0; i < this.size; ++i) {
+	    sqrSum += this.data[i] * this.data[i];
+	  }
+	  return sqrSum;
+	};
+	
+	Vector.prototype.getLength = function() {
+	  return Math.sqrt(this.getSqrLength());
+	};
+	
+	Vector.prototype.toArray = function() {
+	  var arr = [];
+	  for (var i = 0; i < this.size; ++i) {
+	    arr.push(this.data[i]);
+	  }
+	  return arr;
+	};
+	
+	Vector.dot = function(vecA, vecB) {
+	  if (vecA.size !== vecB.size) throw new Error('Vector sizes don\'t match');
+	  var product = 0;
+	  for(var i = 0; i < vecA.size; ++i) {
+	    product += vecA.data[i] * vecB.data[i];
+	  }
+	  return product;
+	};
+	
+	Vector.clone = function(vec) {
+	  return new Vector(vec.data);
+	};
+	
+	module.exports = Vector;
 
 
 /***/ }
