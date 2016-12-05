@@ -3,6 +3,9 @@ var Generator = require('./Generator');
 var Chart = require('./Chart');
 var GLView = require('./GLView');
 var Vector = require('./lib/math/Vector');
+var Matrix = require('./lib/math/Matrix');
+
+var mat = Matrix([],1,2);
 
 window.Vector = Vector;
 

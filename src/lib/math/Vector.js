@@ -19,6 +19,10 @@ function createNotInitialized(size) {
 }
 
 function Vector() {
+  if(!(this instanceof Vector)) {
+    return new Vector(arguments);
+  }
+
   if (arguments.length > 0) {
     if(arguments[0] instanceof Array){
       createFromArray.apply(this, arguments);
