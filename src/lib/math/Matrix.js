@@ -25,7 +25,6 @@ function createFromTwoDimensionalArray(arr) {
 }
 
 function createFromOneDimensionalArray(arr, cols, rows) {
-  throw new ArgumentsError('Test Error');
   this.data = [];
   this.cols = cols;
   this.rows = rows || arr.length / cols;
@@ -47,10 +46,14 @@ function createFromOneDimensionalArray(arr, cols, rows) {
   }
 }
 
+function _helperConstructor(args) {
+  return Matrix.apply(this, args);
+}
+
 function Matrix() {
 
   if(!(this instanceof Matrix)) {
-    return new Matrix(...arguments);
+    return new _helperConstructor(arguments);
   }
 
   if (arguments.length > 0) {
