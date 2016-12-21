@@ -31,7 +31,7 @@ function Generator(minX, maxX) {
         y = Math.random();
         dy = (y - ly) / x;
         step = 0;
-    };
+    }
 
     this.next = function() {
         ly += dy;
