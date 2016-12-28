@@ -1,7 +1,7 @@
 var CircularArray = require('./lib/CircularArray');
 
-function DerivativeChart(containerElement, color) {
-    this._chartOffsetX = 30;
+function IntegralChart(containerElement, color) {
+    this._chartOffsetX = 50;
     this._chartOffsetY = 20;
 
 
@@ -29,22 +29,18 @@ function DerivativeChart(containerElement, color) {
     this._points = new CircularArray(rect.width);
 
     this._ctx =  this._chart.getContext('2d');
-    this._ctx.strokeStyle = color;
-    //this._ctx.fillStyle = 'tomato';
+    this._ctx.fillStyle = color;
 
-    //this._setGradientFill();
     this._ctx.lineWidth = 1.5;
 
     this._ctxGrid = this._grid.getContext('2d');
     this._ctxGrid.strokeStyle = '#aaa';
     this._ctxGrid.lineWidth = 1;
 
-
-
     this._drawGrid();
 }
 
-DerivativeChart.prototype.setSize = function(width, height) {
+IntegralChart.prototype.setSize = function(width, height) {
     this._wrap.width = width;
     this._wrap.height = height;
     this._grid.width = width;
@@ -53,7 +49,7 @@ DerivativeChart.prototype.setSize = function(width, height) {
     this._chart.height = height - this._chartOffsetY;
 };
 
-DerivativeChart.prototype._drawGrid = function() {
+IntegralChart.prototype._drawGrid = function() {
     this._ctxGrid.clearRect(0,0,this._grid.width,this._grid.height);
     var rowNum = 4;
     var colNum = 7;
@@ -63,7 +59,7 @@ DerivativeChart.prototype._drawGrid = function() {
     this._ctxGrid.textAlign = "left";
     this._ctxGrid.textBaseline = "top";
     for (var i = 0; i < rowNum + 1; i++) {
-        this._ctxGrid.fillText((((1 - (i / rowNum)) * 200 - 100) / this._scale).toFixed(1) + '%', this._chart.width + 1, i * rowHeight);
+        this._ctxGrid.fillText(Math.round((1 - (i / rowNum)) * 100 / this._scale) + '%', this._chart.width + 1, i * rowHeight);
         var startX = 0.5,
             startY = Math.round(i * rowHeight) + 0.5;
         var endX = this._chart.width,
@@ -82,35 +78,40 @@ DerivativeChart.prototype._drawGrid = function() {
     this._ctxGrid.stroke();
 };
 
-DerivativeChart.prototype._calculateScale = function() {
-  var maxValue = 0;
-  for (var i = 1; i < this._points.getLength(); ++i){
-    var value = Math.abs(this._points.getAt(i) - this._points.getAt(i-1));
-    if (value > maxValue) maxValue = value;
+IntegralChart.prototype._calculateScale = function() {
+  var sum = 0;
+  for (var i = 0; i < this._points.getLength(); ++i){
+    sum += Math.abs(this._points.getAt(i));
   }
-  this._scale =  this._chart.height / 2 / maxValue;
+  this._scale =  this._chart.height / sum;
 };
 
-DerivativeChart.prototype.draw = function() {
+IntegralChart.prototype.draw = function() {
     this._calculateScale();
     this._drawGrid();
     this._ctx.clearRect(0,0,this._chart.width,this._chart.height);
     this._ctx.beginPath();
-    this._ctx.moveTo(this._chart.width - this._points.getLength(), this._chart.height/2 - (this._points.getAt(0) - this._points.getAt(1)) * this._scale);
-    // this._ctx.moveTo(this._chart.width - this._points.getLength(), this._chart.height);
+
+    this._ctx.moveTo(this._chart.width - this._points.getLength(), this._chart.height - (this._points.getAt(0)) * this._scale);
+    this._ctx.moveTo(this._chart.width - this._points.getLength(), this._chart.height);
+
+
+    var sum = 0;
+
     for (var i = 1; i < this._points.getLength(); i++) {
-        this._ctx.lineTo(this._chart.width - this._points.getLength() + i, this._chart.height/2 - (this._points.getAt(i) - this._points.getAt(i-1)) * this._scale);
+        sum += this._points.getAt(i);
+        this._ctx.lineTo(this._chart.width - this._points.getLength() + i, this._chart.height - sum * this._scale);
     }
-    // this._ctx.lineTo(this._chart.width, this._chart.height);
-    this._ctx.stroke();
+    this._ctx.lineTo(this._chart.width, this._chart.height);
+    this._ctx.fill();
 };
 
-DerivativeChart.prototype.addRecord = function(record) {
+IntegralChart.prototype.addRecord = function(record) {
     this._points.push(record * this._chart.height/2);
 };
 
-DerivativeChart.prototype.clear = function () {
+IntegralChart.prototype.clear = function () {
   this._points.clear();
 };
 
-module.exports = DerivativeChart;
+module.exports = IntegralChart;

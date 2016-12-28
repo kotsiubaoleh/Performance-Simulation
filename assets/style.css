@@ -5,6 +5,48 @@ html, body {
 }
 
 body {
+    background-color: #ffffff;
+}
+
+.content {
+    margin-left: 150px;
+}
+
+.menu {
+    width: 150px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    height: 100%;
+}
+
+.menu .menu-item {
+    user-select: none;
+    flex: 1;
+    font-size: 40px;
+    color: white;
+    background-color: #202020;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.menu .menu-item:hover {
+    color: #202020;
+    background-color: white;
+}
+
+.menu .menu-item.menu-item-active {
+    background-color: tomato;
+    color: white;
+    text-decoration: underline;
+}
+
+body {
     font-family: sans-serif;
 }
 

@@ -19,6 +19,11 @@ function CircularArray(length) {
     this.getLength = function () {
         return array.length;
     };
+
+    this.clear = function () {
+        array = [];
+        head = 0;
+    };
 }
 
 module.exports = CircularArray;

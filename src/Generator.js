@@ -2,7 +2,8 @@ function createCombinedGenerator(genParams) {
     var generators = [];
     var weights = [];
     for (var i = 0; i < genParams.length; i++) {
-        generators.push(new Generator(genParams[i].from, genParams[i].to));
+        if (genParams[i].rep) generators.push(new RepetitionGenerator(genParams[i].from, genParams[i].to));
+        else generators.push(new Generator(genParams[i].from, genParams[i].to));
         weights.push(genParams[i].weight);
     }
     return new CombinedGenerator(generators, weights);
@@ -18,6 +19,24 @@ function CombinedGenerator(generators, weights) {
         }
         return next / overallWeight;
     }
+}
+
+function RepetitionGenerator(minX, maxX) {
+  var x, y, step;
+
+  init();
+
+  function init() {
+    x = minX + Math.floor(Math.random() * (maxX - minX));
+    y = Math.random();
+    step = 0;
+  }
+
+  this.next = function() {
+    step++;
+    if (step >= x) init();
+    return y;
+  };
 }
 
 function Generator(minX, maxX) {

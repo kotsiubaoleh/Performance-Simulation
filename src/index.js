@@ -2,24 +2,45 @@ var CircularArray = require('./lib/CircularArray');
 var Generator = require('./Generator');
 var Chart = require('./Chart');
 var DerivativeChart = require('./DerivativeChart');
-// var GLView = require('./GLView');
-// var Vector = require('./lib/math/Vector');
-// var Matrix = require('./lib/math/Matrix');
+var IntegralChart = require('./IntegralChart');
+var Menu = require('./Menu');
 
-var redThreshold = 0.7;
-var greenThreshold = 0.4;
+Menu.init(function (selectedItem) {
+  vChart.clear();
+  iChart.clear();
+  FChart.clear();
+  switch (selectedItem) {
+    case 'cpu':
+      generator = Generator.createCombinedGenerator(
+        [{from: 50, to: 200, weight: 1},
+          {from: 5, to: 30, weight: 0.2},
+          {from: 3, to: 15, weight: 0.05}]
+      );
+      break;
+    case 'ram':
+      generator = Generator.createCombinedGenerator(
+        [{from: 50, to: 150, weight: 1, rep: true},
+          {from: 10, to: 100, weight: 0.15, rep: true}]
 
+      );
+      break;
+    case 'disk':
+      generator = Generator.createCombinedGenerator(
+        [{from: 3, to: 15, weight: 0.05},
+        {from: 20, to: 100, weight: 1, rep: true}]
+      );
+      break;
+  }
+});
 
-var fChartElement = document.getElementById('f-chart');
-// var glViewElement = document.getElementById('gl-view');
-var fChart = new Chart(fChartElement, redThreshold, greenThreshold);
-// var glView = new GLView(glViewElement);
+  var redThreshold = 0.7;
+  var greenThreshold = 0.4;
 
-var sliderRed = document.getElementById('slider-red');
-sliderRed.value = redThreshold * 100;
-sliderRed.onchange = function (e) {
+  var sliderRed = document.getElementById('slider-red');
+  sliderRed.value = redThreshold * 100;
+  sliderRed.onchange = function (e) {
   redThreshold = e.target.value / 100;
-  fChart.setRedThreshold(redThreshold);
+  vChart.setRedThreshold(redThreshold);
 };
 
 var sliderGreen = document.getElementById('slider-green');
@@ -28,7 +49,7 @@ sliderGreen.onchange = function (e) {
 
   greenThreshold = e.target.value / 100;
   console.log(greenThreshold);
-  fChart.setGreenThreshold(greenThreshold);
+  vChart.setGreenThreshold(greenThreshold);
 };
 
 var percentElem = document.getElementById('f-percent');
@@ -38,10 +59,13 @@ var arrow = document.getElementsByClassName('arrow-icon')[0];
 var arrowContainer = document.getElementsByClassName('arrow')[0];
 
 var vChartElement = document.getElementById('v-chart');
-var vChart = new DerivativeChart(vChartElement,25,'blue');
+var vChart = new Chart(vChartElement, redThreshold, greenThreshold);
 
 var iChartElement = document.getElementById('i-chart');
-var iChart = new DerivativeChart(iChartElement,40,'purple');
+var iChart = new DerivativeChart(iChartElement,'blue');
+
+var FChartElement = document.getElementById('if-chart');
+var FChart = new IntegralChart(FChartElement,'purple');
 
 var generator = Generator.createCombinedGenerator(
   [{from: 50, to: 200, weight: 1},
@@ -64,31 +88,27 @@ function rotateArrow() {
     arrowContainer.style.backgroundColor = background;
 }
 
-setInterval(function() {
-    next = generator.next();
-    fChart.addRecord(next);
-    derivative = next - lastResult;
-    vChart.addRecord(derivative);
-    iChart.addRecord(derivative - lastDerivative);
-    percent = next * 100;
-    rotateArrow();
-    lastResult = next;
-    lastDerivative = derivative;
-},100);
+var intervalId = setInterval(function() {
+  next = generator.next();
+  vChart.addRecord(next);
+  iChart.addRecord(next);
+  FChart.addRecord(next);
+  percent = next * 100;
+  rotateArrow();
+  lastResult = next;
+  lastDerivative = derivative;
+},200);
 
 function drawPercent(){
     percentElem.innerHTML = Math.round(percent);
 }
 
 function onNextFrame() {
-    fChart.draw();
     vChart.draw();
     iChart.draw();
-    // glView.draw();
+    FChart.draw();
     drawPercent();
     requestAnimationFrame(onNextFrame);
 }
 
 onNextFrame();
-
-window.chart = fChart;

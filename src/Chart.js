@@ -126,4 +126,8 @@ Chart.prototype.addRecord = function(record) {
     this._points.push(record * this._chart.height);
 };
 
+Chart.prototype.clear = function () {
+  this._points.clear();
+};
+
 module.exports = Chart;

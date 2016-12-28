@@ -6,29 +6,36 @@
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-<div class="charts">
-    <h1 class="chart-header">f(w)</h1>
-    <div class="chart-block">
-        <input type="range" orient="vertical" id="slider-red">
-        <input type="range" orient="vertical" id="slider-green">
-        <div class="chart" id="f-chart"></div>
-        <div class="percent">
-            <div class="sign">%</div>
-            <div class="value" id="f-percent"></div>
-        </div>
-        <div class="arrow" id="f-arrow">
-            <svg width="100%" height="100%" viewBox="0 0 32 32" preserveAspectRatio="none" class="arrow-icon">
-                <path fill="#444" d="M16 1l-15 15h9v16h12v-16h9z"/>
-            </svg>
-        </div>
+<div class="content">
+    <div class="menu">
+        <div class="menu-item" id="cpu">CPU</div>
+        <div class="menu-item" id="ram">RAM</div>
+        <div class="menu-item" id="disk">DISK</div>
     </div>
-    <h1 class="chart-header">v(w) = f'(w)</h1>
-    <div class="chart-block">
-        <div class="derivative-chart" id="v-chart"></div>
-    </div>
-    <h1 class="chart-header">i(w) = v'(w) = f''(w)</h1>
-    <div class="chart-block">
-        <div class="derivative-chart" id="i-chart"></div>
+    <div class="charts">
+        <h1 class="chart-header">v(w) = f'(w) </h1>
+        <div class="chart-block">
+            <input type="range" orient="vertical" id="slider-red">
+            <input type="range" orient="vertical" id="slider-green">
+            <div class="chart" id="v-chart"></div>
+            <div class="percent">
+                <div class="sign">%</div>
+                <div class="value" id="f-percent"></div>
+            </div>
+            <div class="arrow" id="f-arrow">
+                <svg width="100%" height="100%" viewBox="0 0 32 32" preserveAspectRatio="none" class="arrow-icon">
+                    <path fill="#444" d="M16 1l-15 15h9v16h12v-16h9z"/>
+                </svg>
+            </div>
+        </div>
+        <h1 class="chart-header">i(w) = v'(w) = f''(w)</h1>
+        <div class="chart-block">
+            <div class="derivative-chart" id="i-chart"></div>
+        </div>
+        <h1 class="chart-header">F(w) = ∫v(w)dw</h1>
+        <div class="chart-block">
+            <div class="derivative-chart" id="if-chart"></div>
+        </div>
     </div>
 </div>
 <script src="dist/bundle.js"></script>
