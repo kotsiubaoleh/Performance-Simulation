@@ -9,6 +9,7 @@ Menu.init(function (selectedItem) {
   vChart.clear();
   iChart.clear();
   FChart.clear();
+  VChart.clear();
   switch (selectedItem) {
     case 'cpu':
       generator = Generator.createCombinedGenerator(
@@ -21,7 +22,6 @@ Menu.init(function (selectedItem) {
       generator = Generator.createCombinedGenerator(
         [{from: 50, to: 150, weight: 1, rep: true},
           {from: 10, to: 100, weight: 0.15, rep: true}]
-
       );
       break;
     case 'disk':
@@ -67,6 +67,9 @@ var iChart = new DerivativeChart(iChartElement,'blue');
 var FChartElement = document.getElementById('if-chart');
 var FChart = new IntegralChart(FChartElement,'purple');
 
+var VChartElement = document.getElementById('iv-chart');
+var VChart = new IntegralChart(VChartElement,'red');
+
 var generator = Generator.createCombinedGenerator(
   [{from: 50, to: 200, weight: 1},
     {from: 5, to: 30, weight: 0.2},
@@ -88,11 +91,14 @@ function rotateArrow() {
     arrowContainer.style.backgroundColor = background;
 }
 
+var last = 0;
 var intervalId = setInterval(function() {
   next = generator.next();
   vChart.addRecord(next);
   iChart.addRecord(next);
   FChart.addRecord(next);
+  VChart.addRecord(Math.abs(last-next));
+  last = next;
   percent = next * 100;
   rotateArrow();
   lastResult = next;
@@ -107,6 +113,7 @@ function onNextFrame() {
     vChart.draw();
     iChart.draw();
     FChart.draw();
+    VChart.draw();
     drawPercent();
     requestAnimationFrame(onNextFrame);
 }

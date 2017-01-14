@@ -4,10 +4,6 @@ function DerivativeChart(containerElement, color) {
     this._chartOffsetX = 30;
     this._chartOffsetY = 20;
 
-
-  // this._redThreshold = redThreshold || 0.7;
-  // this._greenThreshold = greenThreshold || 0.3;
-
     this._scale = 1;
     this._wrap = document.createElement('div');
     this._wrap.style.position = 'relative';
@@ -15,8 +11,6 @@ function DerivativeChart(containerElement, color) {
     this._grid.style.position = 'absolute';
     this._chart = document.createElement('canvas');
     this._chart.style.position = 'absolute';
-    // this._chart.style.left = this._chartOffsetX -1 + 'px';
-    // this._chart.style.border = "1px solid #aaa";
 
 
     this._wrap.appendChild(this._grid);
@@ -30,9 +24,7 @@ function DerivativeChart(containerElement, color) {
 
     this._ctx =  this._chart.getContext('2d');
     this._ctx.strokeStyle = color;
-    //this._ctx.fillStyle = 'tomato';
 
-    //this._setGradientFill();
     this._ctx.lineWidth = 1.5;
 
     this._ctxGrid = this._grid.getContext('2d');
@@ -97,11 +89,9 @@ DerivativeChart.prototype.draw = function() {
     this._ctx.clearRect(0,0,this._chart.width,this._chart.height);
     this._ctx.beginPath();
     this._ctx.moveTo(this._chart.width - this._points.getLength(), this._chart.height/2 - (this._points.getAt(0) - this._points.getAt(1)) * this._scale);
-    // this._ctx.moveTo(this._chart.width - this._points.getLength(), this._chart.height);
     for (var i = 1; i < this._points.getLength(); i++) {
         this._ctx.lineTo(this._chart.width - this._points.getLength() + i, this._chart.height/2 - (this._points.getAt(i) - this._points.getAt(i-1)) * this._scale);
     }
-    // this._ctx.lineTo(this._chart.width, this._chart.height);
     this._ctx.stroke();
 };
 

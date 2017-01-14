@@ -4,10 +4,6 @@ function IntegralChart(containerElement, color) {
     this._chartOffsetX = 50;
     this._chartOffsetY = 20;
 
-
-  // this._redThreshold = redThreshold || 0.7;
-  // this._greenThreshold = greenThreshold || 0.3;
-
     this._scale = 1;
     this._wrap = document.createElement('div');
     this._wrap.style.position = 'relative';
@@ -15,9 +11,6 @@ function IntegralChart(containerElement, color) {
     this._grid.style.position = 'absolute';
     this._chart = document.createElement('canvas');
     this._chart.style.position = 'absolute';
-    // this._chart.style.left = this._chartOffsetX -1 + 'px';
-    // this._chart.style.border = "1px solid #aaa";
-
 
     this._wrap.appendChild(this._grid);
     this._wrap.appendChild(this._chart);
@@ -94,7 +87,6 @@ IntegralChart.prototype.draw = function() {
 
     this._ctx.moveTo(this._chart.width - this._points.getLength(), this._chart.height - (this._points.getAt(0)) * this._scale);
     this._ctx.moveTo(this._chart.width - this._points.getLength(), this._chart.height);
-
 
     var sum = 0;
 

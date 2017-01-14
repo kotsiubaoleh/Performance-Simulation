@@ -13,7 +13,7 @@
         <div class="menu-item" id="disk">DISK</div>
     </div>
     <div class="charts">
-        <h1 class="chart-header">v(w) = f'(w) </h1>
+        <!--<h1 class="chart-header">v(w) = f'(w) </h1>-->
         <div class="chart-block">
             <input type="range" orient="vertical" id="slider-red">
             <input type="range" orient="vertical" id="slider-green">
@@ -28,13 +28,17 @@
                 </svg>
             </div>
         </div>
-        <h1 class="chart-header">i(w) = v'(w) = f''(w)</h1>
+        <!--<h1 class="chart-header">F(w) = ∫v(w)dw</h1>-->
+        <div class="chart-block">
+            <div class="derivative-chart" id="if-chart"></div>
+        </div>
+        <!--<h1 class="chart-header">i(w) = v'(w) = f''(w)</h1>-->
         <div class="chart-block">
             <div class="derivative-chart" id="i-chart"></div>
         </div>
-        <h1 class="chart-header">F(w) = ∫v(w)dw</h1>
+        <!--<h1 class="chart-header">V(w) = ∫i(w)dw</h1>-->
         <div class="chart-block">
-            <div class="derivative-chart" id="if-chart"></div>
+            <div class="derivative-chart" id="iv-chart"></div>
         </div>
     </div>
 </div>
